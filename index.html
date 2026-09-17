@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>隐藏天赋</title>
+<style>
+ :root{--cream:#F5F2EC;--ink:#16151D;--muted:#8A8577;--accent:#7C4DFF;--accent-fg:#FFFFFF;--accent-tx:#774AF5;--rule:rgba(22,21,29,.12);
+  --sans:"PingFang SC","Hiragino Sans GB","Noto Sans SC",-apple-system,BlinkMacSystemFont,sans-serif;}
+ *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+ html,body{margin:0;padding:0;overflow-x:clip}
+ body{background:var(--cream);color:var(--ink);font-family:var(--sans);min-height:100dvh;-webkit-font-smoothing:antialiased}
+ .wrap{max-width:560px;margin:0 auto;padding:26px 24px 40px;min-height:100dvh;display:flex;flex-direction:column;overflow-x:clip}
+ .hidden{display:none!important}
+ .row{display:flex;justify-content:space-between;align-items:center}
+ .tag{font-size:10.5px;letter-spacing:.28em;color:var(--muted)}
+ .no{font-size:11px;letter-spacing:.14em;color:var(--accent-tx);font-weight:700}
+ .btn{display:block;width:100%;border:0;border-radius:5px;background:var(--accent);color:var(--accent-fg);
+  font-family:var(--sans);font-size:15.5px;font-weight:700;letter-spacing:.16em;padding:17px;cursor:pointer;
+  transition:transform .4s cubic-bezier(.19,1,.22,1)}
+ .btn:active{transform:scale(.985)}
+ .ghost{display:block;width:100%;border:1px solid var(--rule);border-radius:5px;background:transparent;color:var(--ink);
+  font-family:var(--sans);font-size:14px;letter-spacing:.12em;padding:15px;margin-top:10px;cursor:pointer}
+ .cover{flex:1;display:flex;flex-direction:column;padding-top:34px;position:relative}
+ .beam{position:absolute;right:-120px;top:-90px;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,77,255,.30),transparent 64%);pointer-events:none}
+ .cover h1{position:relative;font-size:clamp(2.5rem,13.5vw,3.2rem);font-weight:800;line-height:1.1;letter-spacing:-.01em;margin:46px 0 0}
+ .emblem{color:var(--accent);width:84px;margin:30px 0 0}.emblem svg{width:84px;display:block}
+ .spacer{flex:1}
+ .lede{font-size:13.5px;line-height:1.9;color:#4A453D;margin:0 0 20px}
+ .disclaim{text-align:center;color:var(--muted);font-size:11px;margin:14px 0 0;letter-spacing:.06em}
+ .quiz{flex:1;display:flex;flex-direction:column;padding-top:30px}
+ .track{height:2px;background:var(--rule);position:relative}
+ .track i{position:absolute;left:0;top:0;height:2px;width:0;background:var(--accent);transition:width .5s}
+ .qnum{font-size:11px;letter-spacing:.22em;color:var(--muted);margin:14px 0 0}
+ h2.qtext{font-size:21px;font-weight:600;line-height:1.55;margin:26px 0 22px;letter-spacing:.01em}
+ .opts{display:flex;flex-direction:column}
+ .opt{appearance:none;border:0;border-top:1px solid var(--rule);background:transparent;text-align:left;
+  font-family:var(--sans);font-size:15px;line-height:1.6;color:var(--ink);padding:17px 30px 17px 0;position:relative;
+  cursor:pointer;transition:padding .4s,color .3s}
+ .opt:last-child{border-bottom:1px solid var(--rule)}
+ .opt::after{content:"";position:absolute;right:4px;top:50%;width:7px;height:7px;margin-top:-3.5px;
+  background:var(--accent);border-radius:50%;opacity:0;transition:opacity .3s,transform .4s;transform:translateX(-6px)}
+ .opt:hover{padding-left:10px}.opt:hover::after{opacity:1;transform:none}
+ .opt.sel{color:var(--accent-tx);padding-left:10px;font-weight:600}
+ .opt.sel::after{opacity:1;transform:none}
+ .nav{display:flex;gap:12px;margin-top:28px}
+ .navbtn{flex:1;border:1px solid var(--rule);background:transparent;color:var(--ink);
+  font-family:var(--sans);font-size:13.5px;letter-spacing:.08em;padding:14px;border-radius:5px;
+  cursor:pointer;transition:border-color .3s,opacity .3s,transform .4s}
+ .navbtn:active{transform:scale(.98)}
+ .navbtn:disabled{opacity:.28;cursor:default}
+ .navbtn.next{border-color:var(--accent);color:var(--accent-tx);font-weight:600}
+ .result{flex:1;padding-top:26px}
+ canvas#card{width:100%;max-width:400px;margin:0 auto;display:block;border-radius:8px;
+  box-shadow:0 24px 50px -28px rgba(22,21,29,.42)}
+ .read{margin-top:26px}
+ .read h3{font-size:12px;letter-spacing:.2em;color:var(--accent-tx);margin:24px 0 8px;font-weight:700}
+ .read p{margin:0;font-size:14.5px;line-height:2;color:#332F28}
+ .hook{margin-top:28px;padding:18px;border:1px dashed var(--rule);border-radius:8px;
+  font-size:13.5px;line-height:1.95;color:#332F28;text-align:center}
+ .hook b{color:var(--accent-tx);display:block;margin-bottom:6px;font-size:14.5px}
+ .actions{margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="row"><span class="tag">隐藏天赋图鉴</span><span class="no">No.02</span></div>
+
+ <section id="cover" class="cover">
+  <div class="beam"></div>
+  <h1>你比想象中<br>更有天分</h1>
+  <div class="emblem"><svg viewBox="0 0 100 100"><path d="M50 4 L61 39 L96 50 L61 61 L50 96 L39 61 L4 50 L39 39 Z" fill="currentColor"/></svg></div>
+  <div class="spacer"></div>
+  <p class="lede">18 道题，约 3 分钟。8 种隐藏天赋，找出你最擅长的那一种。</p>
+  <button class="btn" onclick="start()">开始鉴定</button>
+  <p class="disclaim">趣味测试 · 仅供娱乐 · 非专业心理测评</p>
+ </section>
+
+ <section id="quiz" class="quiz hidden">
+  <div class="track"><i id="bar"></i></div>
+  <div class="qnum" id="qnum"></div>
+  <h2 class="qtext" id="qtxt"></h2>
+  <div class="opts" id="opts"></div>
+  <div class="nav">
+   <button class="navbtn" id="back" onclick="back()">← 上一题</button>
+   <button class="navbtn next" id="next" onclick="next()">下一题 →</button>
+  </div>
+ </section>
+
+ <section id="result" class="result hidden">
+  <canvas id="card" width="1080" height="1440"></canvas>
+  <div class="read" id="read"></div>
+  <div class="hook"><b>这只是你的天赋之一</b>你的人格底色、社交电量、内耗点、恋爱模式，<br>是另外四张图鉴。<br>—— 隐藏系列 · 一共 5 张</div>
+  <div class="actions">
+   <button class="btn" onclick="save()">保存结果图</button>
+   <button class="ghost" onclick="copyTxt()">复制结果文案</button>
+   <button class="ghost" onclick="editAnswers()">← 返回修改答案</button>
+   <button class="ghost" onclick="retry()">重新测试</button>
+  </div>
+  <p class="disclaim">趣味测试 · 仅供娱乐 · 非专业心理测评</p>
+ </section>
+</div>
+
+<script>
+var TEST={"id": "02", "file": "02-隐藏天赋.html", "name": "隐藏天赋", "brand": "隐藏天赋图鉴", "h1a": "你比想象中", "h1b": "更有天分", "lede": "18 道题，约 3 分钟。8 种隐藏天赋，找出你最擅长的那一种。", "hook": "<b>这只是你的天赋之一</b>你的人格底色、社交电量、内耗点、恋爱模式，<br>是另外四张图鉴。<br>—— 隐藏系列 · 一共 5 张", "questions": [{"t": "团队要做一个新项目，刚开完启动会。你最自然会被拉去做的是？", "o": [["挑出方案里那些别人没注意到的漏洞", "T1"], ["把大家说的东西整理成一份谁都能看懂的说明", "T3"], ["想出几个别人没想到的玩法", "T5"], ["把落地的第一步先排出来，直接开干", "T6"]]}, {"t": "一群人卡在一个问题上，气氛有点僵。你最可能？", "o": [["把话题拉高一点，看看这件事大方向对不对", "T2"], ["说句话把大家的状态重新点起来", "T4"], ["私下找两边聊一聊，把关系先理顺", "T7"], ["先让大家别急，把情绪稳下来再谈", "T8"]]}, {"t": "朋友问你：我该不该换工作？你第一反应更接近？", "o": [["先问清楚他现在这份工作到底哪里不舒服", "T1"], ["看这份工作在三年后还有没有空间", "T2"], ["帮他想几个他没想到的可能性", "T5"], ["先感受一下他到底想要什么，再说建议", "T7"]]}, {"t": "一个新来的同事总做不好，你会怎么帮？", "o": [["换个说法讲一遍，直到他听懂", "T3"], ["先让他相信自己能做好", "T4"], ["直接带他做一遍，把坑标出来", "T6"], ["先别催他，给他一点时间适应", "T8"]]}, {"t": "你在一个团队里，最常被别人需要的是？", "o": [["帮他看出问题到底出在哪", "T1"], ["让他重新有干劲", "T4"], ["调和矛盾，让大家能继续合作", "T7"], ["把事情接过来，保证能交付", "T6"]]}, {"t": "下面哪种夸奖，最让你觉得被说中？", "o": [["你看得比别人远", "T2"], ["你一讲我就明白了", "T3"], ["你总能想到不一样的角度", "T5"], ["有你在，大家就没那么慌", "T8"]]}, {"t": "一件拖了很久的事终于有人来问你意见，你会先？", "o": [["找出它一直卡住的真正原因", "T1"], ["先把各方的说法对齐，别各说各的", "T3"], ["判断这件事还值不值得继续做", "T2"], ["先把节奏稳住，别急着下结论", "T8"]]}, {"t": "如果要你带一个新人，你更擅长教他什么？", "o": [["怎么跳出框子想问题", "T5"], ["怎么把事真正做成", "T6"], ["怎么和人打交道、把关系处好", "T7"], ["怎么找回自己的热情", "T4"]]}, {"t": "一个项目出了问题，复盘会上你最可能贡献的是？", "o": [["指出那个被忽略的细节点", "T1"], ["先照顾一下团队的氛围，别互相甩锅", "T7"], ["把事情讲清楚，让所有人对齐", "T3"], ["提出下次要在机制上怎么避免", "T2"]]}, {"t": "你更愿意被别人记住哪一点？", "o": [["你很有想法", "T5"], ["你很能扛事", "T6"], ["你很有感染力", "T4"], ["你很稳，让人安心", "T8"]]}, {"t": "一件事快到截止日期了，还差一截。你会？", "o": [["先检查还有哪些坑没补", "T1"], ["自己先顶上，把最关键的部分做完", "T6"], ["把大家的劲重新提起来", "T4"], ["协调一下谁还能帮忙，别让谁掉队", "T7"]]}, {"t": "下面哪种工作，你做起来最不费力？", "o": [["判断方向，决定要做什么", "T2"], ["把复杂的东西讲给别人听", "T3"], ["从零想出一个新东西", "T5"], ["处理麻烦，把场面稳住", "T8"]]}, {"t": "朋友说最近很迷茫。你最想对他做的是？", "o": [["帮他把问题拆开，看看到底卡在哪", "T1"], ["先让他知道，不管怎样都有人在", "T8"], ["带他看看别的可能性", "T5"], ["让他重新相信自己", "T4"]]}, {"t": "在一个陌生的饭局上，你最容易被谁记住？", "o": [["那个能聊到行业和大局的人", "T2"], ["那个说话让人听得懂的人", "T3"], ["那个不声不响把事安排好的人", "T6"], ["那个让所有人都聊得起来的人", "T7"]]}, {"t": "你更相信哪种能力？", "o": [["看清细节，才能不出错", "T1"], ["想到别人想不到的", "T5"], ["看准方向，比努力重要", "T2"], ["能把人点燃，才有结果", "T4"]]}, {"t": "团队里最需要有人做的那件事，你最愿意接哪个？", "o": [["把大家的想法对齐", "T3"], ["把最难的那部分扛下来", "T6"], ["把人和人连起来", "T7"], ["在乱的时候让大家不慌", "T8"]]}, {"t": "如果只能保留一种天赋，你更想留哪个？", "o": [["看穿问题的能力", "T1"], ["让别人重新有劲的能力", "T4"], ["不断想出新的可能", "T5"], ["把人和人聚在一起", "T7"]]}, {"t": "你觉得一个好团队里，最重要的是？", "o": [["有人看得远", "T2"], ["大家说得清、听得懂", "T3"], ["有人把事真正做成", "T6"], ["有人在乱的时候稳住", "T8"]]}], "types": {"T1": {"n": "显微镜", "sub": "看细节 · 找漏洞 · 追根因", "kw": "敏锐 · 严谨 · 追根本", "quote": "别人看到的是结果，你看到的是那个被忽略的细节。", "callout": ["你总能在一堆看起来没问题里，发现那个迟早会出事的地方。", "你不喜欢含糊，因为你知道：魔鬼都藏在细节里。"], "sections": [["你的样子", "别人觉得你太较真，其实你只是看到了他们没看到的。你受不了大概差不多，因为你知道差的那一点会出事。"], ["你的隐藏矛盾", "你把事情看得太清楚，反而常常是那个扫兴的人。"], ["你的高光时刻", "当所有人都在说没问题的时候，你指出来的那一点，最后救了整个事。"], ["你和别人的关系", "你不擅长说漂亮话，但你说的话，往往是别人后来最感激的。"], ["你的人生课题", "不是所有细节都要抓。学会分清重要和只是看得见。"]], "color": "#2F5BD8", "fg": "#FFFFFF", "tx": "#2F5BD8"}, "T2": {"n": "望远镜", "sub": "看方向 · 看趋势 · 看大局", "kw": "远见 · 判断力 · 格局", "quote": "你不擅长走最快的路，但你知道哪条路能走远。", "callout": ["别人在忙着解决眼前的事，你已经看到了三年后。", "你的判断常常在当下不被理解，但后来被证明是对的。"], "sections": [["你的样子", "你本能地会往远处看。当别人还在讨论怎么做，你在想这件事值不值得做。"], ["你的隐藏矛盾", "你看得太远，所以常常觉得和身边人不在一个频道上。"], ["你的高光时刻", "当大家被眼前的事情困住，你能一句话把方向拉回来。"], ["你和别人的关系", "你需要的是能跟你聊未来的人，而不只是聊今天的人。"], ["你的人生课题", "看得远是天赋，但也要学会把远方讲成别人听得懂的话。"]], "color": "#1F7A8C", "fg": "#FFFFFF", "tx": "#1E7889"}, "T3": {"n": "翻译机", "sub": "讲明白 · 对齐 · 沟通", "kw": "表达 · 共情 · 清晰", "quote": "你不是会说，你是能让别人听懂。", "callout": ["同一件事，你换三种说法，总有一种能让对方点头。", "你经常在两边都说不通的时候，成为那个把话接下去的人。"], "sections": [["你的样子", "你能在不同的语言、立场、认知之间来回切换。复杂的东西到你这里，会变得简单。"], ["你的隐藏矛盾", "你总在翻译别人的意思，却很少有人翻译你。"], ["你的高光时刻", "当双方吵得不可开交，你一句话让所有人都明白了对方在说什么。"], ["你和别人的关系", "你是那个跟他说话不累的人，这本身就是稀缺的。"], ["你的人生课题", "别只做传声筒。你自己想说什么，也很重要。"]], "color": "#7C4DFF", "fg": "#FFFFFF", "tx": "#774AF5"}, "T4": {"n": "点火器", "sub": "点燃 · 激励 · 带动", "kw": "热情 · 感染力 · 带动", "quote": "你自己有火，还能让别人也亮起来。", "callout": ["你说话的时候，别人会不自觉地被带动起来。", "你很难对着一群泄气的人无动于衷——你总会想把他们点起来。"], "sections": [["你的样子", "你能感觉到一个团队的能量在哪。低迷的时候，你本能地想做点什么。"], ["你的隐藏矛盾", "你总在给别人充电，但很少有人说你也歇会。"], ["你的高光时刻", "当所有人都想放弃的时候，你的一句话让事情重新动了起来。"], ["你和别人的关系", "别人记得你，往往是因为你在他最难的时候推了他一把。"], ["你的人生课题", "你的火也需要柴。别只做点火的人，也要允许自己被点燃。"]], "color": "#FF5A2B", "fg": "#16151D", "tx": "#C24421"}, "T5": {"n": "万花筒", "sub": "联想 · 创意 · 新角度", "kw": "想象力 · 跨界 · 不一样", "quote": "你想问题的方式，本身就和你的人一样，不太一样。", "callout": ["别人给你一个题目，你脑子里会同时亮起好几个答案。", "你很难忍受一直都这么做，因为你想知道还能不能更好。"], "sections": [["你的样子", "你的思路是发散的，能把毫不相关的东西连起来。你讨厌千篇一律。"], ["你的隐藏矛盾", "想法太多，反而很难只做一件、并做完。"], ["你的高光时刻", "当一件事需要新角度、新玩法、新可能，就是你出场的时候。"], ["你和别人的关系", "你需要的是能接住你想法的人，而不是让你想实际点的人。"], ["你的人生课题", "想法的价值在落地那一刻。挑一个，把它做出来。"]], "color": "#D6336C", "fg": "#FFFFFF", "tx": "#C93066"}, "T6": {"n": "承重墙", "sub": "扛事 · 交付 · 落地", "kw": "执行 · 责任 · 靠得住", "quote": "别人负责说，你负责让它真的发生。", "callout": ["你是不是那种答应了就一定会做到的人？哪怕没人监督。", "别人讨论得热火朝天的时候，你已经在想第一步怎么做了。"], "sections": [["你的样子", "你不擅长画大饼，你擅长把饼做出来。事情到你手里，就有了进度。"], ["你的隐藏矛盾", "你能扛住所有事，但很少有人问过你扛不扛得住。"], ["你的高光时刻", "所有项目都悬着的时候，是你在底下撑着，没让它塌。"], ["你和别人的关系", "你的承诺是最好的名片——说到，就一定会做到。"], ["你的人生课题", "不是所有事都得你扛。学会把一部分交出去。"]], "color": "#7A6A58", "fg": "#FFFFFF", "tx": "#7A6A58"}, "T7": {"n": "黏合剂", "sub": "连接 · 协调 · 关系", "kw": "亲和力 · 协调 · 情商", "quote": "你不是最亮的那个，但你是让大家在一起的那个。", "callout": ["你总能第一时间感觉到：谁和谁之间有点不对。", "很多合作能成，其实是因为中间有你在。"], "sections": [["你的样子", "你对人与人之间的气氛非常敏感。你会本能地去补那些裂缝。"], ["你的隐藏矛盾", "你维护了所有人的关系，却常常忽略自己在关系里的感受。"], ["你的高光时刻", "当团队快要散的时候，是你把大家重新连在一起。"], ["你和别人的关系", "你是那种认识你之后，大家变得更好相处的人。"], ["你的人生课题", "不是所有关系都需要你维护。有些人，让他们自己去磨合。"]], "color": "#E8890C", "fg": "#16151D", "tx": "#9E5D08"}, "T8": {"n": "压舱石", "sub": "稳住 · 定心 · 不乱", "kw": "稳定 · 可靠 · 让人安心", "quote": "你不制造声音，你让声音停下来。", "callout": ["越乱的时候，你反而越冷静——这是很多人做不到的。", "别人慌的时候，会下意识地看你一眼。"], "sections": [["你的样子", "你在动荡里特别稳。你不急着表态，但你一开口，大家就安静了。"], ["你的隐藏矛盾", "你稳住了所有人，但你的不安，没人接得住。"], ["你的高光时刻", "当事情失控，你是那个说先别急、然后一步步收拾场面的人。"], ["你和别人的关系", "你不热闹，但你在的地方，大家会觉得踏实。"], ["你的人生课题", "你也可以慌张。不用永远做那个稳住全场的人。"]], "color": "#3B3FA8", "fg": "#FFFFFF", "tx": "#3B3FA8"}}};
+var QS=TEST.questions, T=TEST.types;
+var SANS='"PingFang SC","Hiragino Sans GB","Noto Sans SC",-apple-system,sans-serif';
+var INK='#16151D', CREAM='#F5F2EC', MUTED='#8A8577';
+var SIG={"E":1,"I":-1,"X":1,"S":-1,"F":1,"L":-1};
+var AXES=[{label:"外向指数"},{label:"探索指数"},{label:"直觉指数"}];
+var cur=0, picks=[], res=null;
+
+function show(id){['cover','quiz','result'].forEach(function(x){document.getElementById(x).classList.toggle('hidden',x!==id);});}
+function start(){picks=new Array(QS.length).fill(null);cur=0;show('quiz');render();window.scrollTo(0,0);}
+function retry(){show('cover');window.scrollTo(0,0);}
+function editAnswers(){show('quiz');go(0);}
+function render(){
+ var q=QS[cur];
+ document.getElementById('qnum').textContent=('0'+(cur+1)).slice(-2)+' / '+('0'+QS.length).slice(-2);
+ document.getElementById('bar').style.width=(cur/QS.length*100)+'%';
+ document.getElementById('qtxt').textContent=q.t;
+ var box=document.getElementById('opts');box.innerHTML='';
+ q.o.forEach(function(o,i){
+  var b=document.createElement('button');
+  b.className='opt'+(picks[cur]===i?' sel':'');
+  b.textContent=o[0];
+  b.onclick=function(){pick(i);};box.appendChild(b);});
+ document.getElementById('back').disabled=(cur===0);
+ var nb=document.getElementById('next');
+ if(picks[cur]===null){nb.style.visibility='hidden';}
+ else{nb.style.visibility='visible';
+      nb.textContent=(cur===QS.length-1)?'看结果':'下一题 →';}
+}
+function go(i){cur=i;render();window.scrollTo(0,0);}
+function back(){if(cur>0){go(cur-1);}}
+function next(){
+ if(picks[cur]===null){return;}
+ if(cur<QS.length-1){go(cur+1);}
+ else if(picks.indexOf(null)<0){finish();}
+ else{go(picks.indexOf(null));}
+}
+function pick(i){
+ picks[cur]=i;
+ if(cur<QS.length-1){go(cur+1);}
+ else if(picks.indexOf(null)<0){finish();}
+ else{go(picks.indexOf(null));}
+}
+function finish(){
+ var seq=picks.map(function(i,qi){return QS[qi].o[i][1];});
+ var cnt={};
+ seq.forEach(function(k){cnt[k]=(cnt[k]||0)+1;});
+ var best=0;Object.keys(cnt).forEach(function(k){if(cnt[k]>best)best=cnt[k];});
+ var tied=Object.keys(cnt).filter(function(k){return cnt[k]===best;});
+ var key=tied[0];
+ for(var i=seq.length-1;i>=0;i--){ if(tied.indexOf(seq[i])>=0){key=seq[i];break;} }
+ var tot=[0,0,0];
+ seq.forEach(function(k){
+   tot[0]+=SIG[k[0]];tot[1]+=SIG[k[1]];tot[2]+=SIG[k[2]];
+ });
+ res={key:key,pct:tot.map(function(v){return Math.round((v+QS.length)/(2*QS.length)*100);})};
+ var M=T[key];
+ document.documentElement.style.setProperty('--accent',M.color);
+ document.documentElement.style.setProperty('--accent-fg',M.fg);
+ document.documentElement.style.setProperty('--accent-tx',M.tx);
+ drawCard(M);buildRead(M);show('result');window.scrollTo(0,0);
+}
+function buildRead(M){var h='';M.sections.forEach(function(s){h+='<h3>'+s[0]+'</h3><p>'+s[1]+'</p>';});document.getElementById('read').innerHTML=h;}
+function spaced(ctx,text,x,y,gap){var cx=x;for(var i=0;i<text.length;i++){ctx.fillText(text[i],cx,y);cx+=ctx.measureText(text[i]).width+gap;}return cx;}
+function wrapText(ctx,text,x,y,maxW,lh){
+ var chars=text.split(''),line='';
+ chars.forEach(function(ch){if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,x,y);y+=lh;line=ch;}else{line+=ch;}});
+ if(line){ctx.fillText(line,x,y);}return y+lh;
+}
+function drawCard(M){
+ var cv=document.getElementById('card'),ctx=cv.getContext('2d');
+ var W=1080,H=1440,P=92,A=M.color,ATX=M.tx;
+ ctx.clearRect(0,0,W,H);
+ ctx.fillStyle=CREAM;ctx.fillRect(0,0,W,H);
+ var g=ctx.createLinearGradient(W,0,0,H);g.addColorStop(0,A+'33');g.addColorStop(.55,A+'00');
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ ctx.fillStyle=A;ctx.fillRect(0,0,W,10);
+ ctx.textBaseline='alphabetic';
+ ctx.fillStyle=INK;ctx.font='700 30px '+SANS;ctx.textAlign='left';spaced(ctx,TEST.brand,P,120,4);
+ ctx.fillStyle=ATX;ctx.font='700 28px '+SANS;ctx.textAlign='right';ctx.fillText('No.'+TEST.id,W-P,120);
+ ctx.strokeStyle='rgba(22,21,29,.14)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(P,164);ctx.lineTo(W-P,164);ctx.stroke();
+ ctx.fillStyle=INK;ctx.textAlign='left';
+ var _nf=150;ctx.font='800 '+_nf+'px '+SANS;
+ while(ctx.measureText(M.n).width>W-2*P && _nf>84){_nf-=6;ctx.font='800 '+_nf+'px '+SANS;}
+ ctx.fillText(M.n,P,384);
+ ctx.fillStyle=ATX;ctx.font='600 33px '+SANS;ctx.fillText(M.sub,P+4,438);
+ ctx.fillStyle=INK;ctx.font='400 42px '+SANS;
+ var qy=wrapText(ctx,M.quote,P,556,W-2*P,60);
+ ctx.fillStyle=MUTED;ctx.font='400 28px '+SANS;spaced(ctx,M.kw,P,qy+26,4);
+ var y=Math.max(qy+122,724);
+ AXES.forEach(function(ax,i){
+  ctx.fillStyle=MUTED;ctx.font='400 26px '+SANS;ctx.textAlign='left';ctx.fillText(ax.label,P,y);
+  var bx=P+240,bw=560;
+  ctx.fillStyle='rgba(22,21,29,.09)';ctx.fillRect(bx,y-19,bw,12);
+  var gr=ctx.createLinearGradient(bx,0,bx+bw,0);gr.addColorStop(0,A);gr.addColorStop(1,A+'88');
+  ctx.fillStyle=gr;ctx.fillRect(bx,y-19,bw*res.pct[i]/100,12);
+  ctx.fillStyle=INK;ctx.font='700 27px '+SANS;ctx.textAlign='right';ctx.fillText(res.pct[i],W-P,y);
+  y+=58;
+ });
+ y+=24;
+ ctx.fillStyle=A;ctx.fillRect(P,y-22,5,96);
+ ctx.fillStyle='#3A362E';ctx.font='400 31px '+SANS;ctx.textAlign='left';
+ y=wrapText(ctx,M.callout[0],P+26,y+8,W-P-26-P,44);
+ wrapText(ctx,M.callout[1],P+26,y+8,W-P-26-P,44);
+ ctx.fillStyle=MUTED;ctx.font='400 25px '+SANS;ctx.textAlign='left';
+ ctx.fillText('趣味测试 · 仅供娱乐 · 非专业心理测评',P,H-72);
+ ctx.textAlign='right';ctx.fillStyle=ATX;ctx.font='700 25px '+SANS;ctx.fillText(TEST.brand+' · '+M.n,W-P,H-72);
+}
+function save(){var a=document.createElement('a');a.download=TEST.brand+'-'+T[res.key].n+'.png';
+ a.href=document.getElementById('card').toDataURL('image/png');a.click();}
+function copyTxt(){
+ var M=T[res.key];
+ var txt='【隐藏人格图鉴】'+M.n+' · '+M.sub+'\n「'+M.quote+'」\n'+M.kw+'\n'+
+  AXES.map(function(a,i){return a.label+' '+res.pct[i];}).join(' / ')+'\n\n'+
+  M.callout[0]+'\n'+M.callout[1]+'\n\n（趣味测试，仅供娱乐）';
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){alert('已复制，去分享吧');});}
+ else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');alert('已复制，去分享吧');}catch(e){}document.body.removeChild(ta);}
+}
+</script>
+</body>
+</html>
